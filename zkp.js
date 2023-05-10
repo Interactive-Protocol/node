@@ -1,52 +1,32 @@
 const snarkjs = require("snarkjs");
+const { circuit, witness } = require("./zkpCircuit");
 
-// Define the circuit
-const circuit = {
-  // Input variables
-  inputVariables: {
-    variable1: "field",
-    variable2: "field",
-    // ... more input variables ...
-  },
+// Define the proving and verification keys
+const { provingKey, verificationKey } = snarkjs["groth"].setup(circuit);
 
-  // Constraints
-  constraints: [
-    ["field", "field", "field"], // A constraint between three input variables
-    // ... more constraints ...
-  ],
+// Perform zero-knowledge proof (ZKP)
+async function performZKP(taskData) {
+  // Convert task data to the format expected by the circuit
+  const inputData = Buffer.from(taskData);
 
-  // Output
-  output: "field", // Specify the desired output
+  try {
+    // Generate the proof
+    const proof = await snarkjs["groth"].prove(provingKey, witness, inputData);
 
-  // ... additional circuit configuration ...
+    // Verify the proof
+    const isValid = snarkjs["groth"].verify(verificationKey, proof);
+
+    console.log("Proof is valid:", isValid);
+
+    return isValid;
+  } catch (error) {
+    console.error("Error performing ZKP:", error);
+    return false;
+  }
+}
+
+// Other functions related to ZKP (e.g., generating keys, setting up the circuit, etc.) can be added here
+
+module.exports = {
+  performZKP,
 };
-
-// Generate the proving key and verifying key
-const { pk: provingKey, vk: verificationKey } = snarkjs["groth"].setup(circuit);
-
-// Create a witness (input values)
-const witness = {
-  variable1: "value1",
-  variable2: "value2",
-  // ... more witness values ...
-};
-
-// Generate the public and private inputs
-const { publicSignals, privateSignals } = snarkjs["groth"].witness({
-  ...witness,
-  provingKey,
-});
-
-// Generate the proof
-const proof = snarkjs["groth"].prove(provingKey, publicSignals, privateSignals);
-
-// Serialize the proof
-const proofSerialized = snarkjs["groth"].serializeProof(proof);
-
-// Serialize the public signals
-const publicSignalsSerialized = snarkjs["groth"].serializeInputs(publicSignals);
-
-// Verify the proof
-const isValid = snarkjs["groth"].verify(verificationKey, publicSignals, proof);
-
-console.log(`Proof is valid: ${isValid}`);
