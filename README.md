@@ -13,7 +13,7 @@ The node component of the Interactive Protocol is responsible for executing comp
 
 ## Usage
 
-1. Start the node: `node index.js`
+1. Start the node: `node node.js`
 2. The node will listen for incoming computation tasks and bid on them based on available resources and the bidding mechanism implemented in the code.
 3. The bidding mechanism takes into account factors such as the node's available resources, task complexity, and other predefined logic.
 4. Once a task is assigned to the node, it will execute the computation securely using ZKPs.
