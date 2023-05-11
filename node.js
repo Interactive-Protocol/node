@@ -100,7 +100,4 @@ async function startNode() {
 }
 
 // Start the node
-
-
-// Start the node
 startNode();
