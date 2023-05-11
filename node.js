@@ -54,11 +54,11 @@ function submitBid(taskId, bid) {
 // Perform zero-knowledge proof (ZKP)
 async function performZKP(taskData) {
   // Convert task data to the format expected by the circuit
-  const inputData = Buffer.from(taskData);
+  const inputData = snarkjs["groth"].stringifyBigInts({ ...witness, inputData: Buffer.from(taskData) });
 
   try {
     // Generate the proof
-    const proof = await snarkjs["groth"].prove(provingKey, witness, inputData);
+    const proof = await snarkjs["groth"].prove(provingKey, circuit, inputData);
 
     // Verify the proof
     const isValid = snarkjs["groth"].verify(verificationKey, proof);
