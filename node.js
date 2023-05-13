@@ -31,6 +31,12 @@ contract.events.NewTask({}, async (error, event) => {
   } else {
     console.log("ZKP proof is not valid. Bid not submitted.");
   }
+
+  // Perform task computation
+  const result = computeTask(taskData);
+
+  // Submit the task result
+  submitTaskResult(taskId, result);
 });
 
 // Submit a bid for a task
@@ -82,7 +88,39 @@ function computeBid(taskData) {
   return bid;
 }
 
-// Other functions for interacting with the contract (e.g., getting task details, submitting results, etc.) can be added here
+// Compute the task based on the task data
+function computeTask(taskData) {
+  let result;
+
+  try {
+    // Execute the task data as code
+    result = eval(taskData);
+  } catch (error) {
+    console.error("Error executing task data:", error);
+    result = null; // Set the result to null or handle the error as needed
+  }
+
+  return result;
+}
+
+
+// Submit the task result to the contract
+function submitTaskResult(taskId, result) {
+  const accounts = web3.eth.getAccounts();
+  const account = accounts[0]; // Replace with the desired Ethereum account
+
+  contract.methods.completeTask(taskId, result)
+    .send({ from: account })
+    .on("transactionHash", (hash) => {
+      console.log("Task result submitted. Transaction hash:", hash);
+    })
+    .on("receipt", (receipt) => {
+      console.log("Task result receipt:", receipt);
+    })
+    .on("error", (error) => {
+      console.error("Error submitting task result:", error);
+    });
+}
 
 // Main entry point
 async function startNode() {
